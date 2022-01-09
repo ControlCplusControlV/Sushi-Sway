@@ -16,7 +16,7 @@ struct returnAssets {
     asset2:address,
 }
 
-abi ConstantProductPool {
+abi ConstantProductPoolABI {
     // Trident actually uses bytes32 as a sole input in most functions
     // Amazing right?
     fn mint(gas: u64, coins: u64, asset_id: b256, input: b256) -> u64;
@@ -32,7 +32,7 @@ abi ConstantProductPool {
     fn getNativeReserves(gas: u64, coins: u64, asset_id: b256, input: b256) -> ReservesReturn;
 }
 
-impl ConstantProductPool for Contract {
+impl ConstantProductPoolABI for ConstantProductPool {
 
     let MINIMUM_LIQUIDITY:u64 = 1000;
     let PRECISION:u8 = 112;
