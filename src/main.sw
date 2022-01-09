@@ -1,17 +1,38 @@
 contract;
 
-enum FizzBuzzResult {
-    Fizz: (),
-    Buzz: (),
-    FizzBuzz: (),
-    Other: u64,
+// Will be pushing to std lib later
+pub struct address {
+    value: b256,
 }
 
-abi FizzBuzz {
-    fn fizzbuzz(gas: u64, coins: u64, asset_id: b256, input: u64) -> FizzBuzzResult;
+pub struct ReservesReturn {
+    reserve0:u64,
+    reserve1:u64,
+    blockTimestampLast:u32,
 }
 
-impl FizzBuzz for Contract {
+struct returnAssets {
+    asset1:address,
+    asset2:address,
+}
+
+abi ConstantProductPool {
+    // Trident actually uses bytes32 as a sole input in most functions
+    // Amazing right?
+    fn mint(gas: u64, coins: u64, asset_id: b256, input: b256) -> u64;
+    fn burn(gas: u64, coins: u64, asset_id: b256, input: b256) -> []u64;
+    fn burnSingle(gas: u64, coins: u64, asset_id: b256, input: b256) -> u64;
+    fn swap(gas: u64, coins: u64, asset_id: b256, input: b256) -> u64;
+    fn flashSwap(gas: u64, coins: u64, asset_id: b256, input: b256) -> u64;
+    fn updateBarFee(gas: u64, coins: u64, asset_id: b256, input: b256);
+    fn getAssets(gas: u64, coins: u64, asset_id: b256, input: b256) -> returnAssets;
+    fn getAmountOut(gas: u64, coins: u64, asset_id: b256, input: b256) -> u64;
+    fn getAmountIn(gas: u64, coins: u64, asset_id: b256, input: b256) -> u64;
+    fn getReserves(gas: u64, coins: u64, asset_id: b256, input: b256) -> ReservesReturn;
+    fn getNativeReserves(gas: u64, coins: u64, asset_id: b256, input: b256) -> ReservesReturn;
+}
+
+impl ConstantProductPool for Contract {
 
     let MINIMUM_LIQUIDITY:u64 = 1000;
     let PRECISION:u8 = 112;
@@ -39,15 +60,5 @@ impl FizzBuzz for Contract {
 
     let poolIdentifier:b256 = "Trident:ConstantProduct";
 
-    fn fizzbuzz(gas: u64, coins: u64, asset_id: b256, input: u64) -> FizzBuzzResult {
-        if input % 15 == 0 {
-            FizzBuzzResult::FizzBuzz
-        } else if input % 3 == 0 {
-            FizzBuzzResult::Fizz
-        } else if input % 5 == 0 {
-            FizzBuzzResult::Buzz
-        } else {
-            FizzBuzzResult::Other(input)
-        }
-    }
+
 }
