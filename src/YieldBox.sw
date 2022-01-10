@@ -18,6 +18,65 @@ pub struct depositOutput {
     shareOut:u64,
 }
 
+/* -------------- Some Mapping Definitions for Custom Implemented Mappings, Fix later with std lib ------------- */
+// Needed Mappings [b256 -> b256 -> Rebase] and [b256 -> Rebase]
+
+pub struct Mapping {
+    name:b256
+}
+
+pub trait b256Mapping {
+    fn store(self, key: b256, value: Rebase);
+    fn retrieve(self, key: b256) -> Rebase;
+
+}
+
+// b256 -> Rebase
+impl b256Mapping for Mapping {
+    fn store(self, key: b256, value:b256) {
+        let storage_slot = hash_pair(self.name, key, HashMethod::Sha256);
+        
+        store(storage_slot, value);
+
+    }
+
+    fn retrieve(self, key: b256) -> Rebase {
+        let storage_slot = hash_pair(self.name, key, HashMethod::Sha256);
+
+        let resultingValue:Rebase = get::<Rebase>(storage_slot);
+
+        resultingValue
+    }
+}
+// b256 -> b256 -> Rebase
+pub struct Mapping {
+    name:b256
+}
+
+pub trait b256Mapping {
+    fn store(self, key: b256, value: Rebase);
+    fn retrieve(self, key: b256) -> Mapping;
+
+}
+
+impl MappingMapping for Mapping {
+    fn storeMap(self, key: b256, value:Mapping) {
+        let storage_slot = hash_pair(self.name, key, HashMethod::Sha256);
+        
+        store(storage_slot, value);
+
+    }
+
+    fn retrieveMap(self, key: b256) -> Mapping {
+        let storage_slot = hash_pair(self.name, key, HashMethod::Sha256);
+
+        let resultingValue:Mapping = get::<Mapping>(storage_slot);
+
+        resultingValue
+    }
+}
+
+
 abi BentoBoxABI {
     fn deposit(gas: u64, coins: u64, asset_id: b256, inputData: depositInput) -> depositOutput;
 }
@@ -55,14 +114,20 @@ impl BentoBoxABI for BentoBox {
 
         let share:u64 = total.toBase(amount, false);
 
-        // Ignure deposit if below minimum Share balance
+        // Ignore deposit if below minimum Share balance
         // @TODO implement this
 
         // Fix all this , but here as a placeholder
-        balanceOf[token][to] = balanceOf[token][to].add(share);
+        let balanceOf:Mapping = Mapping {
+            name: 0x0000000000000000000000000000000000000000000000000000000000000000;
+        }
+
+        balanceOf.store()
+
+        balanceOf[token][to] = balanceOf[token][to].add(share); // b256 -> b256 -> Rebase
         total.base = total.base.add(share.to128());
         total.elastic = total.elastic.add(amount.to128());
-        totals[token] = total;
+        totals[token] = total; // b256 -> Rebase
 
         let mut returnValue:depositOutput;
         returnValue.amountOut = coins;
@@ -71,6 +136,5 @@ impl BentoBoxABI for BentoBox {
         returnValue
     }
 
-    fn withdraw
 
 }
