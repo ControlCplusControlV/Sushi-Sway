@@ -1,140 +1,200 @@
 contract;
 
-use CopiedSway::*;
-use std::chain::assert;
+// Needed for Hash Mappings
+use std::chain::*;
+use std::hash::*;
+use std::storage::*;
 
-// Will be pushing to std lib later
-pub struct address {
-    value: b256,
+/* --------------- Rebase Handling --------------- */
+
+pub struct Rebase {
+    elastic:u64,
+    base:u64,
 }
 
-pub struct depositInput {
-    from: address,
-    to: address,
+fn to_base(total:Rebase, elastic:u64, roundUp:bool) -> u64 {
+    let mut base:u64 = 0;
+
+    if(total.elastic == 0){
+        base = elastic;
+    } else {
+        base = (elastic * total.base) / total.elastic;
+        if (roundUp && (base * total.elastic) / total.base < elastic) {
+            base = base + 1;
+        };
+    }; 
+
+    base
 }
 
-pub struct depositOutput {
-    amountOut:u64,
-    shareOut:u64,
-}
 
-/* -------------- Some Mapping Definitions for Custom Implemented Mappings, Fix later with std lib ------------- */
-// Needed Mappings [b256 -> b256 -> Rebase] and [b256 -> Rebase]
+fn to_elastic(total:Rebase, base:u64, roundUp:bool) -> u64 {
+    let mut elastic:u64 = 0;
 
-pub struct Mapping {
-    name:b256
-}
-
-pub trait b256Mapping {
-    fn store(self, key: b256, value: Rebase);
-    fn retrieve(self, key: b256) -> Rebase;
-
-}
-
-// b256 -> Rebase
-impl b256Mapping for Mapping {
-    fn store(self, key: b256, value:b256) {
-        let storage_slot = hash_pair(self.name, key, HashMethod::Sha256);
+    if(total.elastic == 0){
+        elastic = base;
+    } else {
+        elastic = (base * total.elastic) / total.base;
         
+        if (roundUp && (elastic * total.base) / total.elastic < base) {
+            elastic = elastic + 1;
+        };
+    };
+
+    elastic
+}
+
+fn add(total:Rebase, elastic:u64, base:u64) -> Rebase {
+    total.elastic = total.elastic + elastic;
+    total.base = total.base + base;
+
+    total
+}
+
+fn sub(total:Rebase, elastic:u64, base:u64) -> Rebase {
+    total.elastic = total.elastic - elastic;
+    total.base = total.base - base;
+
+    total
+}
+
+/* ---------------- Important to note that these methods are different than Boring Solidity ----------- */
+// Storage is iffy so this just returns a new rebase every time, Functional Programming remains supreme
+
+fn add_elastic(total:Rebase, elastic:u64) -> Rebase {
+    total.elastic = total.elastic + elastic;
+
+    total
+}
+
+fn sub_elastic(total:Rebase, elastic:u64) -> Rebase {
+    total.elastic = total.elastic - elastic;
+
+    total
+}
+
+/* ---------------- Mapping Functions ----------------------- */
+
+pub trait PairMapping {
+	fn store(self, key1:b256, key2: b256, value:u64);
+	fn retrieve(self, key1:b256, key2: b256) -> u64;
+}
+
+pub trait BalanceMapping {
+	fn store_bal(self, key1:b256, value:Rebase);
+	fn retrieve_bal(self, key1:b256) -> Rebase;
+}
+
+// Key (b256, b256) which is address -> (address -> u64)
+
+pub struct BytesMapping{
+	map_id : b256
+}
+
+impl PairMapping for BytesMapping {
+    fn store(self, key1:b256, key2: b256, value:u64) {
+        let storage_slot = hash_pair(key1, key2, HashMethod::Sha256);
+
         store(storage_slot, value);
 
     }
 
-    fn retrieve(self, key: b256) -> Rebase {
-        let storage_slot = hash_pair(self.name, key, HashMethod::Sha256);
+    fn retrieve(self, key1: b256, key2: b256) -> u64 {
+        let storage_slot = hash_pair(key1, key2, HashMethod::Sha256);
 
-        let resultingValue:Rebase = get::<Rebase>(storage_slot);
 
-        resultingValue
-    }
-}
-// b256 -> b256 -> Rebase
-pub struct Mapping {
-    name:b256
-}
+        let resultingValue = get::<u64>(storage_slot);
 
-pub trait b256Mapping {
-    fn store(self, key: b256, value: Rebase);
-    fn retrieve(self, key: b256) -> Mapping;
 
-}
-
-impl MappingMapping for Mapping {
-    fn storeMap(self, key: b256, value:Mapping) {
-        let storage_slot = hash_pair(self.name, key, HashMethod::Sha256);
-        
-        store(storage_slot, value);
-
-    }
-
-    fn retrieveMap(self, key: b256) -> Mapping {
-        let storage_slot = hash_pair(self.name, key, HashMethod::Sha256);
-
-        let resultingValue:Mapping = get::<Mapping>(storage_slot);
 
         resultingValue
     }
 }
 
+impl BalanceMapping for BytesMapping {
 
-abi BentoBoxABI {
-    fn deposit(gas: u64, coins: u64, asset_id: b256, inputData: depositInput) -> depositOutput;
+    fn store_bal(self, key1:b256, value:Rebase) {
+        let storage_slot = hash_pair(key1, self.map_id, HashMethod::Sha256);
+        // Cursed way to store a struct, I am converting the storage slot to a uint
+        // incrementing it, then casting back to a byte array
+        let mut slotNumber:b256 = storage_slot;
+        let mut storage_slot2:b256 = 0x0000000000000000000000000000000000000000000000000000000000000000;
+        let shiftvalue:u64 = 1;
+        storage_slot2 = asm(s1: slotNumber,s2:storage_slot2, s3:shiftvalue) {
+            sll s2 s1 s3;
+            
+            s2:b256
+        };
+
+        store(storage_slot, value.elastic);
+        store(storage_slot2, value.base);
+
+    }
+
+    fn retrieve_bal(self, key1:b256) -> Rebase {
+        let storage_slot = hash_pair(key1, self.map_id, HashMethod::Sha256);
+        // Cursed way to store a struct, I am converting the storage slot to a uint
+        // incrementing it, then casting back to a byte array
+        let mut slotNumber:b256 = storage_slot;
+        let mut storage_slot2:b256 = 0x0000000000000000000000000000000000000000000000000000000000000000;
+        let shiftvalue:u64 = 1;
+        storage_slot2 = asm(s1: slotNumber,s2:storage_slot2, s3:shiftvalue) {
+            sll s2 s1 s3;
+            
+            s2:b256
+        };
+
+
+
+        let resultingElastic = get::<u64>(storage_slot);
+        let resultingBase = get::<u64>(storage_slot2);
+
+        let resultingValue:Rebase = Rebase{
+            elastic: resultingElastic,
+            base: resultingBase,
+        };    
+
+
+        resultingValue
+    }
 }
 
-// @TODO don't forget to implement allowed modifier
-// @TODO Withdraw function
-// @TODO Mappings
-// @TODO Transfer
-// @TODO Flashloans
-// @TODO Strategies?
-// @TODO The entire master contract thing
+pub struct DepositInput {
+    input_token:b256,
+    from:b256,
+    to:b256,
+}
 
-impl BentoBoxABI for BentoBox {
-    let FLASH_LOAN_FEE :u64 = 50;
-    let FLASH_LOAN_FEE_PRECISION:u64 = 100000; // 1e5
-    let STRATEGY_DELAY:u64 = 0; // Change to 2 weeks however tf you do that
-    let MAX_TARGET_PERCENTAGE:u64 = 95;
-    let MINIMUM_SHARE_BALANCE:u64 1000;
+abi map_test {
+    fn deposit(gas: u64, coins: u64, asset_id: b256, input: DepositInput) -> u64;
 
-    fn _tokenBalanceOf(asset_id: b256) -> u64 {
-        let contractBal:u64 = this_balance(asset_id);
-        let strategyBal:u64 = 0; // Implement Strategies later
+}
+
+impl map_test for Contract {
+
+    fn deposit(gas: u64, coins: u64, asset_id: b256, input: DepositInput) -> u64 {
+
+        let totals = BytesMapping{
+            map_id:0x5500000000000500000000005000000000000000000055000000000000000000
+        };
+
+        let mut total:Rebase = totals.retrieve_bal(asset_id);
+
+        let share:u64 = to_base(total, coins, false);
+
+        let balanceOf = BytesMapping{
+            map_id:0x5500000006000500000000055000060000500006000055000000000006000000
+        };
+
+        let startingBal = balanceOf.retrieve(asset_id, input.to);
+        let updatedBal = startingBal + share;
+        balanceOf.store(asset_id, input.to, updatedBal);
+
+        total.base = total.base + share;
+        total.elastic = total.elastic + coins;
+
+        totals.store_bal(asset_id, total);
+
     }
-
-    fn deposit(gas: u64, coins: u64, asset_id: b256, inputData: depositInput) -> depositOutput {
-        let zeroAddress:b256;
-        assert(depositInput.to != zeroAddress); // To avoid a bad UI from burning funds
-
-        // Fix this whenever mappings work
-        let total:Rebase = totals[asset_id];
-        assert(total.elastic != 0 || coins != 0); // Check token has non zero supply by ensuring some were sent to the Box 
-
-
-        // Flow is different here because we always convert to share
-
-        let share:u64 = total.toBase(amount, false);
-
-        // Ignore deposit if below minimum Share balance
-        // @TODO implement this
-
-        // Fix all this , but here as a placeholder
-        let balanceOf:Mapping = Mapping {
-            name: 0x0000000000000000000000000000000000000000000000000000000000000000;
-        }
-
-        balanceOf.store()
-
-        balanceOf[token][to] = balanceOf[token][to].add(share); // b256 -> b256 -> Rebase
-        total.base = total.base.add(share.to128());
-        total.elastic = total.elastic.add(amount.to128());
-        totals[token] = total; // b256 -> Rebase
-
-        let mut returnValue:depositOutput;
-        returnValue.amountOut = coins;
-        returnValue.shareOut = share;
-
-        returnValue
-    }
-
 
 }
