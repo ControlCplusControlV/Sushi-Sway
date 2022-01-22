@@ -6,6 +6,12 @@ use rand::{Rng, SeedableRng};
 
 abigen!(MyContract, "./BentoBoxABI.json");
 
+pub struct DepositInput {
+    input_token:[u8; 32],
+    from:[u8; 32],
+    to:[u8; 32],
+}
+
 #[tokio::test]
 async fn harness() {
     let rng = &mut StdRng::seed_from_u64(2322u64);
@@ -20,10 +26,22 @@ async fn harness() {
 
     let contract_instance = MyContract::new(compiled, client);
 
+    let inputToken_input:[u8; 32] = [0; 32];
+    
+    let from_input:[u8; 32] = [5; 32];
+
+    let to_input:[u8; 32] = [7; 32];
+
+    let inputStruct = mycontract_mod::DepositInput {
+        input_token: inputToken_input,
+        from:from_input, 
+        to: to_input,
+    };
+
     // Call `initialize_counter()` method in our deployed contract.
     // Note that, here, you get type-safety for free!
     let _result = contract_instance
-        .deposit(1000000, 100, [0; 32], 100)
+        .deposit(1000000, 100, [0; 32], inputStruct)
         .call()
         .await
         .unwrap();
