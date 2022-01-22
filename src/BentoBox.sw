@@ -165,9 +165,16 @@ pub struct DepositInput {
     to:b256,
 }
 
+pub struct TransferInput {
+    token:b256,
+    from:b256,
+    to:b256,
+    share:u64,
+}
+
 abi map_test {
     fn deposit(gas: u64, coins: u64, asset_id: b256, input: DepositInput) -> u64;
-
+fn balance_of(gas: u64, coins: u64, asset_id: b256, input: b256) -> u64;
 }
 
 impl map_test for Contract {
@@ -186,8 +193,8 @@ impl map_test for Contract {
             map_id:0x5500000006000500000000055000060000500006000055000000000006000000
         };
 
-        let startingBal = balanceOf.retrieve(asset_id, input.to);
-        let updatedBal = startingBal + share;
+        let startingBal:u64 = balanceOf.retrieve(asset_id, input.to);
+        let updatedBal:u64 = startingBal + share;
         balanceOf.store(asset_id, input.to, updatedBal);
 
         total.base = total.base + share;
@@ -195,6 +202,17 @@ impl map_test for Contract {
 
         totals.store_bal(asset_id, total);
 
+        share
+    }
+
+    fn balance_of(gas: u64, coins: u64, asset_id: b256, input: b256) -> u64 {
+        let balanceOf = BytesMapping{
+            map_id:0x5500000006000500000000055000060000500006000055000000000006000000
+        };
+
+        let returned_bal = balanceOf.retrieve(asset_id, input);
+
+        returned_bal
     }
 
 }
