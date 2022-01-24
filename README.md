@@ -6,16 +6,16 @@ Current Todo List of What Needs To Be Done
 
 
 ## BentoBox
-[x] - Fix Deposits, as balance is being incorrectly stored leading to a lack of persistence
-[x] - Implement Withdraw Function using TR and TRO opcodes or call approach depending on which works best
-[x] - Allow for Flashloans Starting with a 0.05% fee that is then redistributed to everyone with tokens on BentoBox (including LP pools)
+- [] - Fix Deposits, as balance is being incorrectly stored leading to a lack of persistence
+- [] - Implement Withdraw Function using TR and TRO opcodes or call approach depending on which works best
+- [] - Allow for Flashloans Starting with a 0.05% fee that is then redistributed to everyone with tokens on BentoBox (including LP pools)
 
 ## Constant Product Pool
 
-[x] - Using Nick's [Uniswap Example](https://github.com/FuelLabs/sway/issues/396#issuecomment-975465542) implement the basic UNI V2 interface
-[x] - Proper management of LP tokens that comply to a Fuel token Standard
-[x] - JIT liquidity by borrowing from the BentoBox, thus allowing normally idle Liquidity to be earning Yield when it's not providing liquidity
+- [] - Using Nick's [Uniswap Example](https://github.com/FuelLabs/sway/issues/396#issuecomment-975465542) implement the basic UNI V2 interface
+- [] - Proper management of LP tokens that comply to a Fuel token Standard
+- [] - JIT liquidity by borrowing from the BentoBox, thus allowing normally idle Liquidity to be earning Yield when it's not providing liquidity
 
 ## Concentrated Liquidity Pool
 
-[x] - The idea with Concentrated Liquidity is it can make up for the lack of a Curve Style LP until I am able to implement it, as well as compete with a Uniswap V3 deployment at the same time, also utilizing the BentoBox to maximize network affects
+- [] - The idea with Concentrated Liquidity is it can make up for the lack of a Curve Style LP until I am able to implement it, as well as compete with a Uniswap V3 deployment at the same time, also utilizing the BentoBox to maximize network affects
