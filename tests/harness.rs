@@ -40,16 +40,19 @@ async fn harness() {
 
     // Call `initialize_counter()` method in our deployed contract.
     // Note that, here, you get type-safety for free!
-    let _result = contract_instance
+    let result2 = contract_instance
         .deposit(1000000, 100000, [0; 32], inputStruct)
         .call()
         .await
         .unwrap();
     
+    println!("{}", result2);
+
     let result = contract_instance
         .balance_of(1000000, 100000, [0; 32], to_input)
         .call()
         .await
         .unwrap();
 
+    println!("{}", result);
 }
