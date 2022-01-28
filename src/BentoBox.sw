@@ -190,7 +190,7 @@ impl map_test for Contract {
         let share:u64 = to_base(total, coins, false);
 
         let balanceOf = BytesMapping{
-            map_id:0x5500000006000500000000055000060000500006000055000000000006000000
+            map_id:0x0000000000000004000000400000000000000040000000000400004000000000,
         };
 
         let startingBal:u64 = balanceOf.retrieve(asset_id, input.to);
@@ -207,7 +207,7 @@ impl map_test for Contract {
 
     fn balance_of(gas: u64, coins: u64, asset_id: b256, input: b256) -> u64 {
         let balanceOf = BytesMapping{
-            map_id:0x5500000006000500000000055000060000500006000055000000000006000000
+            map_id:0x0000000000000004000000400000000000000040000000000400004000000000,
         };
 
         let returned_bal = balanceOf.retrieve(asset_id, input);
