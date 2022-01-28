@@ -182,7 +182,7 @@ impl map_test for Contract {
     fn deposit(gas: u64, coins: u64, asset_id: b256, input: DepositInput) -> u64 {
 
         let totals = BytesMapping{
-            map_id:0x5500000000000500000000005000000000000000000055000000000000000000
+            map_id:0x0000000000000500000000005000000000000000000055000000000000000000
         };
 
         let mut total:Rebase = totals.retrieve_bal(asset_id);
