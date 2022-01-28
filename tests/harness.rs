@@ -45,5 +45,11 @@ async fn harness() {
         .call()
         .await
         .unwrap();
+    
+    let result = contract_instance
+        .balance_of(1000000, 100000, [0; 32], to_input)
+        .call()
+        .await
+        .unwrap();
 
 }
