@@ -173,13 +173,13 @@ pub struct TransferInput {
 }
 
 abi map_test {
-    fn deposit(gas: u64, coins: u64, asset_id: b256, input: DepositInput) -> u64;
-fn balance_of(gas: u64, coins: u64, asset_id: b256, input: b256) -> u64;
+    fn deposit(gas_: u64, amount_: u64, color_: b256, input: DepositInput) -> u64;
+    fn balance_of(gas_: u64, amount_: u64, color_: b256, input: b256) -> u64;
 }
 
 impl map_test for Contract {
 
-    fn deposit(gas: u64, coins: u64, asset_id: b256, input: DepositInput) -> u64 {
+    fn deposit(gas_: u64, amount_: u64, color_: b256, input: DepositInput) -> u64 {
 
         let totals = BytesMapping{
             map_id:0x0000000000000500000000005000000000000000000055000000000000000000
@@ -205,7 +205,7 @@ impl map_test for Contract {
         share
     }
 
-    fn balance_of(gas: u64, coins: u64, asset_id: b256, input: b256) -> u64 {
+    fn balance_of(gas_: u64, amount_: u64, color_: b256, input: b256) -> u64 {
         let balanceOf = BytesMapping{
             map_id:0x0000000000000004000000400000000000000040000000000400004000000000,
         };
