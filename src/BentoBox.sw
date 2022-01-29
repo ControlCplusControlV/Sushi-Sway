@@ -185,22 +185,22 @@ impl map_test for Contract {
             map_id:0x0000000000000500000000005000000000000000000055000000000000000000
         };
 
-        let mut total:Rebase = totals.retrieve_bal(asset_id);
+        let mut total:Rebase = totals.retrieve_bal(color_);
 
-        let share:u64 = to_base(total, coins, false);
+        let share:u64 = to_base(total, amount_, false);
 
         let balanceOf = BytesMapping{
             map_id:0x0000000000000004000000400000000000000040000000000400004000000000,
         };
 
-        let startingBal:u64 = balanceOf.retrieve(asset_id, input.to);
+        let startingBal:u64 = balanceOf.retrieve(color_, input.to);
         let updatedBal:u64 = startingBal + share;
-        balanceOf.store(asset_id, input.to, updatedBal);
+        balanceOf.store(color_, input.to, updatedBal);
 
         total.base = total.base + share;
-        total.elastic = total.elastic + coins;
+        total.elastic = total.elastic + amount_;
 
-        totals.store_bal(asset_id, total);
+        totals.store_bal(color_, total);
 
         share
     }
@@ -210,7 +210,7 @@ impl map_test for Contract {
             map_id:0x0000000000000004000000400000000000000040000000000400004000000000,
         };
 
-        let returned_bal = balanceOf.retrieve(asset_id, input);
+        let returned_bal = balanceOf.retrieve(color_, input);
 
         returned_bal
     }
