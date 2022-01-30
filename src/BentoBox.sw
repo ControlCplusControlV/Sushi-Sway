@@ -172,6 +172,7 @@ pub struct TransferInput {
     from:b256,
     to:b256,
     share:u64,
+    asset_id:b256, 
 }
 
 pub struct BalanceOfInput {
@@ -179,12 +180,21 @@ pub struct BalanceOfInput {
     address:b256,
 }
 
-abi map_test {
-    fn deposit(gas_: u64, amount_: u64, color_: b256, input: DepositInput) -> u64;
-    fn balance_of(gas_: u64, amount_: u64, color_: b256, query: BalanceOfInput) -> u64;
+pub struct WithdrawInput {
+    asset_id: b256,
+    from: b256,
+    to: b256,
+    amount: u64,
 }
 
-impl map_test for Contract {
+abi BentoBox {
+    fn deposit(gas_: u64, amount_: u64, color_: b256, input: DepositInput) -> u64;
+    fn balance_of(gas_: u64, amount_: u64, color_: b256, query: BalanceOfInput) -> u64;
+    fn transfer(gas_: u64, amount_: u64, color_: b256, input:TransferInput);
+    fn withdraw(gas_: u64, amount_: u64, color_: b256, input:WithdrawInput);
+}
+
+impl BentoBox for Contract {
 
     fn deposit(gas_: u64, amount_: u64, color_: b256, input: DepositInput) -> u64 {
 
@@ -220,6 +230,50 @@ impl map_test for Contract {
         let returned_bal = balanceOf.retrieve(query.asset_id, query.address);
 
         returned_bal
+    }
+
+    fn transfer(gas_: u64, amount_: u64, color_: b256, input:TransferInput) {
+
+        let balanceOf = BytesMapping{
+            map_id:0x0000000000000004000000400000000000000040000000000400004000000000,
+        };
+
+
+        // Deduct Sender Balance First
+        let mut senderBalance:u64 = balanceOf.retrieve(input.asset_id, input.from);
+        senderBalance = senderBalance - input.share;
+        balanceOf.store(input.asset_id, input.from, senderBalance);
+
+        // Credit Reciever Balance 
+        let mut recieverBalance:u64 = balanceOf.retrieve(input.asset_id, input.to);
+        recieverBalance = recieverBalance + input.share;
+        balanceOf.store(input.asset_id, input.to, recieverBalance);
+    }
+
+    fn withdraw(gas_: u64, amount_: u64, color_: b256, input:WithdrawInput) {
+        
+        let totals = BytesMapping{
+            map_id:0x0000000000000500000000005000000000000000000055000000000000000000
+        };
+
+        let balanceOf = BytesMapping{
+            map_id:0x0000000000000004000000400000000000000040000000000400004000000000,
+        };
+
+        let mut total:Rebase = totals.retrieve_bal(input.asset_id);
+        
+        let share = to_base(total, input.amount, true);
+
+        let startingBal:u64 = balanceOf.retrieve(input.asset_id, input.to);
+        let updatedBal:u64 = startingBal - share;
+        balanceOf.store(input.asset_id, input.to, updatedBal);
+
+        total.base = total.base - share;
+        total.elastic = total.elastic - input.amount;
+
+        totals.store_bal(input.asset_id, total);
+
+        // Then future code to actually transfer out the funds
     }
 
 }
