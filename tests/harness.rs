@@ -6,10 +6,9 @@ use rand::{Rng, SeedableRng};
 
 abigen!(MyContract, "./BentoBoxABI.json");
 
-pub struct DepositInput {
-    input_token:[u8; 32],
-    from:[u8; 32],
-    to:[u8; 32],
+pub struct BalanceOfInput {
+    asset_id: [u8; 32], 
+    address: [u8; 32],
 }
 
 #[tokio::test]
@@ -26,30 +25,38 @@ async fn harness() {
 
     let contract_instance = MyContract::new(compiled, client);
 
-    let inputToken_input:[u8; 32] = [0; 32];
+    let input_token_input:[u8; 32] = [0; 32];
     
     let from_input:[u8; 32] = [5; 32];
 
     let to_input:[u8; 32] = [7; 32];
 
-    let inputStruct = mycontract_mod::DepositInput {
-        input_token: inputToken_input,
-        from:from_input, 
+    let input_struct = mycontract_mod::DepositInput {
+        input_token: input_token_input,
+        from: from_input, 
         to: to_input,
+        amount: 10000000000,
+        asset_id: [0; 32]
     };
 
     // Call `initialize_counter()` method in our deployed contract.
     // Note that, here, you get type-safety for free!
     let result2 = contract_instance
-        .deposit(1000000, 100000, [0; 32], inputStruct)
+        .deposit(input_struct)
         .call()
         .await
         .unwrap();
     
     println!("{}", result2);
 
+    let balance_of_check = BalanceOfInput {
+        address: to_input,
+        asset_id: [0; 32]
+    };
+
+
     let result = contract_instance
-        .balance_of(1000000, 100000, [0; 32], to_input)
+        .balance_of(balance_of_check)
         .call()
         .await
         .unwrap();

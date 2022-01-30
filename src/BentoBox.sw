@@ -163,6 +163,8 @@ pub struct DepositInput {
     input_token:b256,
     from:b256,
     to:b256,
+    amount: u64,
+    asset_id: b256,
 }
 
 pub struct TransferInput {
@@ -172,9 +174,14 @@ pub struct TransferInput {
     share:u64,
 }
 
+pub struct BalanceOfInput {
+    asset_id:b256, 
+    address:b256,
+}
+
 abi map_test {
     fn deposit(gas_: u64, amount_: u64, color_: b256, input: DepositInput) -> u64;
-    fn balance_of(gas_: u64, amount_: u64, color_: b256, input: b256) -> u64;
+    fn balance_of(gas_: u64, amount_: u64, color_: b256, query: BalanceOfInput) -> u64;
 }
 
 impl map_test for Contract {
@@ -185,32 +192,32 @@ impl map_test for Contract {
             map_id:0x0000000000000500000000005000000000000000000055000000000000000000
         };
 
-        let mut total:Rebase = totals.retrieve_bal(color_);
+        let mut total:Rebase = totals.retrieve_bal(input.asset_id);
 
-        let share:u64 = to_base(total, amount_, false);
+        let share:u64 = to_base(total, input.amount, false);
 
         let balanceOf = BytesMapping{
             map_id:0x0000000000000004000000400000000000000040000000000400004000000000,
         };
 
-        let startingBal:u64 = balanceOf.retrieve(color_, input.to);
+        let startingBal:u64 = balanceOf.retrieve(input.asset_id, input.to);
         let updatedBal:u64 = startingBal + share;
-        balanceOf.store(color_, input.to, updatedBal);
+        balanceOf.store(input.asset_id, input.to, updatedBal);
 
         total.base = total.base + share;
-        total.elastic = total.elastic + amount_;
+        total.elastic = total.elastic + input.amount;
 
-        totals.store_bal(color_, total);
+        totals.store_bal(input.asset_id, total);
 
         share
     }
 
-    fn balance_of(gas_: u64, amount_: u64, color_: b256, input: b256) -> u64 {
+    fn balance_of(gas_: u64, amount_: u64, color_: b256, query: BalanceOfInput) -> u64 {
         let balanceOf = BytesMapping{
             map_id:0x0000000000000004000000400000000000000040000000000400004000000000,
         };
 
-        let returned_bal = balanceOf.retrieve(color_, input);
+        let returned_bal = balanceOf.retrieve(query.asset_id, query.address);
 
         returned_bal
     }
