@@ -1,8 +1,8 @@
 [project]
-name = "BentoBox"
 author = "ControlCplusControlV"
 entry = "BentoBox.sw"
 license = "Apache-2.0"
+name = "BentoBox"
 
 [dependencies]
 core = { git = "http://github.com/FuelLabs/sway-lib-core" }
