@@ -49,7 +49,7 @@ async fn harness() {
     
     println!("{}", result2);
 
-    let balance_of_check = BalanceOfInput {
+    let balance_of_check = mycontract_mod::BalanceOfInput {
         address: to_input,
         asset_id: [0; 32]
     };
