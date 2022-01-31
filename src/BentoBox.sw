@@ -179,7 +179,7 @@ pub struct WithdrawInput {
 abi BentoBox {
     fn deposit(gas_: u64, amount_: u64, color_: b256, input: DepositInput) -> u64;
     fn balance_of(gas_: u64, amount_: u64, color_: b256, query: BalanceOfInput) -> u64;
-    fn transfer(gas_: u64, amount_: u64, color_: b256, input: TransferInput);
+    fn transfer(gas_: u64, amount_: u64, color_: b256, inputData: TransferInput);
     fn withdraw(gas_: u64, amount_: u64, color_: b256, input: WithdrawInput);
 }
 
@@ -219,20 +219,20 @@ impl BentoBox for Contract {
         returned_bal
     }
 
-    fn transfer(gas_: u64, amount_: u64, color_: b256, input: TransferInput) {
+    fn transfer(gas_: u64, amount_: u64, color_: b256, inputData: TransferInput) {
         let balanceOf = BytesMapping {
             map_id: 0x0000000000000004000000400000000000000040000000000400004000000000,
         };
 
         // Deduct Sender Balance First
-        let mut senderBalance: u64 = balanceOf.retrieve(input.asset_id, input.from);
-        senderBalance = senderBalance - input.share;
-        balanceOf.store(input.asset_id, input.from, senderBalance);
+        let mut senderBalance: u64 = balanceOf.retrieve(inputData.asset_id, inputData.from);
+        senderBalance = senderBalance - inputData.share;
+        balanceOf.store(inputData.asset_id, inputData.from, senderBalance);
 
         // Credit Reciever Balance
-        let mut recieverBalance: u64 = balanceOf.retrieve(input.asset_id, input.to);
-        recieverBalance = recieverBalance + input.share;
-        balanceOf.store(input.asset_id, input.to, recieverBalance);
+        let mut recieverBalance: u64 = balanceOf.retrieve(inputData.asset_id, inputData.to);
+        recieverBalance = recieverBalance + inputData.share;
+        balanceOf.store(inputData.asset_id, inputData.to, recieverBalance);
     }
 
     fn withdraw(gas_: u64, amount_: u64, color_: b256, input: WithdrawInput) {
