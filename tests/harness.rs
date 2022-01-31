@@ -6,11 +6,6 @@ use rand::{Rng, SeedableRng};
 
 abigen!(MyContract, "./BentoBoxABI.json");
 
-pub struct BalanceOfInput {
-    asset_id: [u8; 32], 
-    address: [u8; 32],
-}
-
 #[tokio::test]
 async fn deposit() {
     let rng = &mut StdRng::seed_from_u64(2322u64);
