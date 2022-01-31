@@ -150,7 +150,6 @@ impl BalanceMapping for BytesMapping {
 }
 
 pub struct DepositInput {
-    input_token: b256,
     from: b256,
     to: b256,
     amount: u64,
