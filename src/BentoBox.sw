@@ -157,7 +157,6 @@ pub struct DepositInput {
 }
 
 pub struct TransferInput {
-    token: b256,
     from: b256,
     to: b256,
     share: u64,

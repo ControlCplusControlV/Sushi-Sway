@@ -135,7 +135,6 @@ async fn transfer() {
     };
 
     let transfer_check = mycontract_mod::TransferInput {
-        token: [0; 32],
         from: to_input, // address money was deposited to
         to: [10; 32],
         share: 100,
