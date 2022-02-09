@@ -166,6 +166,7 @@ pub struct TransferInput {
 pub struct BalanceOfInput {
     asset_id: b256,
     address: b256,
+    salt: u64,
 }
 
 pub struct WithdrawInput {

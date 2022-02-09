@@ -81,7 +81,8 @@ async fn balance_of() {
     
     let balance_of_check = mycontract_mod::BalanceOfInput {
         address: to_input,
-        asset_id: [0; 32]
+        asset_id: [0; 32],
+        salt: 10
     };
 
 
@@ -131,7 +132,8 @@ async fn transfer() {
     
     let balance_of_check = mycontract_mod::BalanceOfInput {
         address: [10; 32],
-        asset_id: [0; 32]
+        asset_id: [0; 32],
+        salt: 1
     };
 
     let transfer_check = mycontract_mod::TransferInput {
@@ -143,7 +145,8 @@ async fn transfer() {
 
     let balance_of_check2 = mycontract_mod::BalanceOfInput {
         address: [10; 32],
-        asset_id: [0; 32]
+        asset_id: [0; 32],
+        salt: 2
     };
 
     let result3 = contract_instance
@@ -198,7 +201,8 @@ async fn withdraw() {
     
     let balance_of_check0 = mycontract_mod::BalanceOfInput {
         address: [10; 32],
-        asset_id: [0; 32]
+        asset_id: [0; 32],
+        salt: 100
     };
 
     let initial_bal = contract_instance
@@ -216,7 +220,8 @@ async fn withdraw() {
 
     let balance_of_check2 = mycontract_mod::BalanceOfInput {
         address: [10; 32],
-        asset_id: [0; 32]
+        asset_id: [0; 32],
+        salt: 10,
     };
 
     let result3 = contract_instance
@@ -227,7 +232,8 @@ async fn withdraw() {
 
     let balance_of_check1 = mycontract_mod::BalanceOfInput {
         address: [10; 32],
-        asset_id: [0; 32]
+        asset_id: [0; 32],
+        salt: 140
     };
 
     let final_bal = contract_instance
