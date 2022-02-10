@@ -199,14 +199,15 @@ async fn withdraw() {
         .await
         .unwrap();
     
-    let balance_of_check0 = mycontract_mod::BalanceOfInput {
-        address: [10; 32],
+    let balance_of_check = mycontract_mod::BalanceOfInput {
+        address: to_input,
         asset_id: [0; 32],
-        salt: 100
+        salt: 7
     };
 
+
     let initial_bal = contract_instance
-        .balance_of(balance_of_check0)
+        .balance_of(balance_of_check)
         .call()
         .await
         .unwrap();
@@ -241,6 +242,6 @@ async fn withdraw() {
         .call()
         .await
         .unwrap();
-
+    
     assert!(initial_bal > final_bal);
 }
