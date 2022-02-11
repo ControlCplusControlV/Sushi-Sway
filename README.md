@@ -7,7 +7,7 @@ Current Todo List of What Needs To Be Done
 
 ## BentoBox
 - [x] - Fix Deposits, as balance is being incorrectly stored leading to a lack of persistence
-- [ ] - Implement Withdraw Function using TR and TRO opcodes or call approach depending on which works best
+- [x] - Implement Withdraw Function **STILL PENDING TOKEN TRANSFERS**
 - [ ] - Allow for Flashloans Starting with a 0.05% fee that is then redistributed to everyone with tokens on BentoBox (including LP pools)
 
 ## Constant Product Pool
