@@ -1,0 +1,21 @@
+[[package]]
+name = 'BentoBox'
+dependencies = [
+    'core git+http://github.com/FuelLabs/sway-lib-core?default-branch#082bc8eb0616586ac0000825bfe6e9d47b0c713f',
+    'std git+http://github.com/FuelLabs/sway-lib-std?default-branch#dc036471ced326e41f076700c0501efc1b442455',
+]
+
+[[package]]
+name = 'core'
+source = 'git+http://github.com/FuelLabs/sway-lib-core?default-branch#082bc8eb0616586ac0000825bfe6e9d47b0c713f'
+dependencies = []
+
+[[package]]
+name = 'core'
+source = 'git+https://github.com/FuelLabs/sway-lib-core?branch=master#082bc8eb0616586ac0000825bfe6e9d47b0c713f'
+dependencies = []
+
+[[package]]
+name = 'std'
+source = 'git+http://github.com/FuelLabs/sway-lib-std?default-branch#dc036471ced326e41f076700c0501efc1b442455'
+dependencies = ['core git+https://github.com/FuelLabs/sway-lib-core?branch=master#082bc8eb0616586ac0000825bfe6e9d47b0c713f']
