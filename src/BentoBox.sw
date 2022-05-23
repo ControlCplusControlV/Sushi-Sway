@@ -12,6 +12,11 @@ pub struct Rebase {
     base: u64,
 }
 
+pub struct b512 {
+	b1 : b256,
+	b2 : b256
+}
+
 fn to_base(total: Rebase, elastic: u64, roundUp: bool) -> u64 {
     let mut base: u64 = 0;
 
@@ -43,14 +48,18 @@ fn to_elastic(total: Rebase, base: u64, roundUp: bool) -> u64 {
     elastic
 }
 
-fn add(total: Rebase, elastic: u64, base: u64) -> Rebase {
-    total.elastic = total.elastic + elastic;
+fn add(number: Rebase, elastic: u64, base: u64) -> Rebase {
+	let mut total = number;
+  
+	total.elastic = total.elastic + elastic;
     total.base = total.base + base;
 
     total
 }
 
-fn sub(total: Rebase, elastic: u64, base: u64) -> Rebase {
+fn sub(number: Rebase, elastic: u64, base: u64) -> Rebase {
+	let mut total = number;
+
     total.elastic = total.elastic - elastic;
     total.base = total.base - base;
 
@@ -60,14 +69,18 @@ fn sub(total: Rebase, elastic: u64, base: u64) -> Rebase {
 /* ---------------- Important to note that these methods are different than Boring Solidity ----------- */
 // Storage is iffy so this just returns a new rebase every time, Functional Programming remains supreme
 
-fn add_elastic(total: Rebase, elastic: u64) -> Rebase {
-    total.elastic = total.elastic + elastic;
+fn add_elastic(number: Rebase, elastic: u64) -> Rebase {
+	let mut total = number;
+
+	total.elastic = total.elastic + elastic;
 
     total
 }
 
-fn sub_elastic(total: Rebase, elastic: u64) -> Rebase {
-    total.elastic = total.elastic - elastic;
+fn sub_elastic(number: Rebase, elastic: u64) -> Rebase {
+	let mut total = number;
+
+	total.elastic = total.elastic - elastic;
 
     total
 }
@@ -92,15 +105,23 @@ pub struct BytesMapping {
 
 impl PairMapping for BytesMapping {
     fn store(self, key1: b256, key2: b256, value: u64) {
-        let storage_slot = hash_pair(key1, key2, HashMethod::Sha256);
+        let new_key = b512 {
+		  b1: key1,
+		  b2: key2
+		};
+		let storage_slot = sha256(new_key);
 
         store(storage_slot, value);
     }
 
     fn retrieve(self, key1: b256, key2: b256) -> u64 {
-        let storage_slot = hash_pair(key1, key2, HashMethod::Sha256);
-
-        let resultingValue = get::<u64>(storage_slot);
+        let new_key = b512 {
+		  b1: key1,
+		  b2: key2
+		};
+		let storage_slot = sha256(new_key);
+        
+		let resultingValue = get::<u64>(storage_slot);
 
         resultingValue
     }
@@ -108,7 +129,7 @@ impl PairMapping for BytesMapping {
 
 impl BalanceMapping for BytesMapping {
     fn store_bal(self, key1: b256, value: Rebase) {
-        let storage_slot = hash_pair(key1, self.map_id, HashMethod::Sha256);
+        let storage_slot = sha256(key1);
         // Cursed way to store a struct, I am converting the storage slot to a uint
         // incrementing it, then casting back to a byte array
         let mut slotNumber: b256 = storage_slot;
@@ -125,7 +146,7 @@ impl BalanceMapping for BytesMapping {
     }
 
     fn retrieve_bal(self, key1: b256) -> Rebase {
-        let storage_slot = hash_pair(key1, self.map_id, HashMethod::Sha256);
+        let storage_slot = sha256(key1);
         // Cursed way to store a struct, I am converting the storage slot to a uint
         // incrementing it, then casting back to a byte array
         let mut slotNumber: b256 = storage_slot;
